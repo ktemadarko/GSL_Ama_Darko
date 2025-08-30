@@ -1,0 +1,94 @@
+---
+title: "Gender Equity"
+author: "Ama Owusu-Darko"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load R packages
+
+```{r load_r_packages}
+library(here)
+library(dplyr)
+library(ggplot2)
+library(readxl)
+library(tidyr)
+library(stringr)
+```
+
+Setup up file paths
+
+
+```{r setup}
+here::i_am("analysis/Ama_K_Owusu_Darko_Assignment.Rmd")
+```
+
+Load Pre-work data set and save it as the dataframe "school_leaders_df
+
+```{r setup}
+school_leaders_df <- readxl::read_excel(here::here("raw_data/Pre-work Dataset.xlsx"))
+
+
+```
+
+Data Preparation
+```{r subset}
+
+#Creating a subset of the data
+professions_df <- school_leaders_df[,c(1,42:50)] |> 
+  tidyr::pivot_longer(
+    cols = starts_with("What kinds of careers do you think are suitable for students?"),
+    names_to = "Professions",
+    values_to = "Suitable_Gender"
+  )
+
+
+# Cleaning up names of profession
+professions_df$Professions <- stringr::str_replace(professions_df$Professions,"What kinds of careers do you think are suitable for students?", "" )
+
+professions_df$Professions <- stringr::str_replace_all(professions_df$Professions,"[?\\n ]", "" )
+
+
+#Separating data set for the school leader is a man 
+
+professions_df_male_school_leader <- professions_df |>  
+  dplyr::mutate(dplyr::across(c(1:3), as.factor)) |> 
+  dplyr::filter(`What is your gender?` == "Man") |> 
+  dplyr::count(`What is your gender?`,Professions, Suitable_Gender, name = "Count") |> 
+  dplyr::arrange(Professions)
+
+#Separating data set for the school leader is a woman
+professions_df_female_school_leader <- professions_df |>  
+  dplyr::mutate(dplyr::across(c(1:3), as.factor)) |> 
+  dplyr::filter(`What is your gender?` == "Woman")|>  
+  dplyr::count(`What is your gender?`,Professions, Suitable_Gender, name = "Count") |> 
+  dplyr::arrange(Professions)
+
+```
+
+### Creating a Gender versus Professions Percent stacked bar chart 
+To display the results of which genders the school leaders perceive to be suitable for the different professions. 
+
+```{r bargraph}
+ggplot2::ggplot(professions_df_male_school_leader, aes(fill = Suitable_Gender,  x = Professions, y= Count ))+
+    geom_bar(position="stack", stat="identity")+
+scale_fill_manual(values = c("#e8e9eb", "#66aa00", "#808", "#e8e"))+
+  theme_minimal()+
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+ labs(title="Opinions of Male School leaders",  subtitle = "On suitable professions for Boys versus Girls")
+
+ggplot2::ggplot(professions_df_female_school_leader, aes(fill = Suitable_Gender,  x = Professions, y= Count ))+
+    geom_bar(position="stack", stat="identity")+
+scale_fill_manual(values = c("#e8e9eb", "#66aa00", "#808", "#e8e"))+
+  theme_minimal()+
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title="Opinions of Female School leaders",  subtitle = "On suitable professions for Boys versus Girls")
+
+
+```
+
+What kinds of careers do you think are suitable for students?

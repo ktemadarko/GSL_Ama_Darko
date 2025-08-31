@@ -1,8 +1,10 @@
 ---
-title: "Gender Equity"
+title: "School leader and Gender Equity"
 author: "Ama Owusu-Darko"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Load R packages
 
-```{r load_r_packages}
+```{r load_r_packages, include=FALSE}
 library(here)
 library(dplyr)
 library(ggplot2)
@@ -23,7 +25,7 @@ library(stringr)
 Setup up file paths
 
 
-```{r file_setup}
+```{r file_setup, include=FALSE}
 here::i_am("analysis/Ama_K_Owusu_Darko_Assignment.Rmd")
 ```
 
@@ -48,7 +50,8 @@ professions_df <- school_leaders_df[,c(1,8,42:50)] |>
 
 
 # Cleaning up names of profession
-professions_df$Professions <- stringr::str_replace(professions_df$Professions,"What kinds of careers do you think are suitable for students?", "" )
+professions_df$Professions <- stringr::str_replace(professions_df$Professions,
+"What kinds of careers do you think are suitable for students?", "" )
 
 professions_df$Professions <- stringr::str_replace_all(professions_df$Professions,"[?\\n ]", "" )
 
@@ -58,50 +61,59 @@ professions_df$Professions <- stringr::str_replace_all(professions_df$Profession
 professions_df_male_school_leader <- professions_df |>  
   dplyr::mutate(dplyr::across(c(1:3), as.factor)) |> 
   dplyr::filter(`What is your gender?` == "Man") |> 
-  dplyr::count(`What is your gender?`,Professions, Suitable_Gender, name = "Count") |> 
+  dplyr::count(`What is your gender?`,Professions, Suitable_Gender,
+               name = "Count") |> 
   dplyr::arrange(Professions) |> 
   dplyr::mutate(Within_Group_percentage = round((Count/ 302)*100, 1))
-
+# There are 302 male school leaders
 
 #Separating data set for the school leader is a woman
 professions_df_female_school_leader <- professions_df |>  
   dplyr::mutate(dplyr::across(c(1:3), as.factor)) |> 
   dplyr::filter(`What is your gender?` == "Woman")|>  
-  dplyr::count(`What is your gender?`, Professions, Suitable_Gender, name = "Count") |> 
+  dplyr::count(`What is your gender?`, Professions, Suitable_Gender, 
+               name = "Count") |> 
   dplyr::arrange(Professions) |> 
   dplyr::mutate(Within_Group_percentage = round((Count/ 183)*100, 1))
-
+# There are 183 female school leaders
 
 professions_df_female_school_leader
 professions_df_male_school_leader
 ```
 
-### Creating a Gender versus Professions Percent stacked bar chart 
+#### Creating a Gender versus Professions Percent stacked bar chart 
+
 To display the results of which genders the school leaders perceive to be suitable for the different professions. 
 
 ```{r bargraph}
 
-ggplot2::ggplot(professions_df_male_school_leader, aes(fill = Suitable_Gender,  x = Professions, y=Within_Group_percentage ))+
+ggplot2::ggplot(professions_df_male_school_leader, aes(fill = Suitable_Gender,  
+                  x = Professions, y=Within_Group_percentage ))+
     geom_bar(position="stack", stat="identity")+
 scale_fill_manual(values = c("#e8e9eb", "#66aa00", "#808", "#e8e"))+
   theme_minimal()+
     theme(axis.text.x = element_text(angle = 45, hjust = 1))+
- labs(title="Opinions of Male School leaders",  subtitle = "Figure 1. On suitable professions for Boys versus Girls") + annotate("text", x = c(1,3, 6), y = c(30), 
+ labs(title="Opinions of Male School leaders",  
+      subtitle = "Figure 1. On suitable professions for Boys versus Girls") + annotate("text", x = c(1,3, 6), y = c(30), 
 label = c( paste(professions_df_male_school_leader[3,5],"%"), 
           paste(professions_df_male_school_leader[11,5],"%"),
           paste(professions_df_male_school_leader[23,5],"%")), color="white", 
 size=3 , angle=0, fontface="bold")+
+  
   annotate("text", x = c(4,8), y = c(80), 
 label = c( paste(professions_df_male_school_leader[13,5],"%"),
           paste(professions_df_male_school_leader[25,5],"%")), color="black", 
 size=3 , angle=0, fontface="bold")
 
-ggplot2::ggplot(professions_df_female_school_leader, aes(fill = Suitable_Gender,  x = Professions, y= Within_Group_percentage ))+
+ggplot2::ggplot(professions_df_female_school_leader, aes(fill = Suitable_Gender,  
+                                                         x = Professions, y= Within_Group_percentage ))+
     geom_bar(position="stack", stat="identity")+
 scale_fill_manual(values = c("#e8e9eb", "#66aa00", "#808", "#e8e"))+
   theme_minimal()+
     theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  labs(title="Opinions of Female School leaders",  subtitle = " Figure 2. On suitable professions for Boys versus Girls")+ annotate("text", x = c(1,3, 6), y = c(30), 
+  labs(title="Opinions of Female School leaders",  
+       subtitle = " Figure 2. On suitable professions for Boys versus Girls")+ annotate("text", x = c(1,3, 6),
+                                                          y = c(30), 
 label = c( paste(professions_df_female_school_leader[3,5],"%"), 
           paste(professions_df_female_school_leader[11,5],"%"),
           paste(professions_df_female_school_leader[23,5],"%")), color="white", 
@@ -112,53 +124,73 @@ label = c( paste(professions_df_female_school_leader[13,5],"%"),
 size=3 , angle=0, fontface="bold")
 ```
 
-The survey results showed that more female than male school leaders have segregated ideas about which careers are suited for each gender. For instance, as shown in Figures 1 and 2 above, the difference is skewed towards Female School leaders thinking girls are more suited to being Airhostesses (61.7%) versus 47.7% of Male School leaders. 
+The survey results showed that more female than male school leaders have segregated ideas about which careers are suited for each gender. For instance, as shown in Figures 1 and 2 above, the difference is skewed towards Female School leaders thinking girls are more suited to being Air hostesses (61.7%) versus 47.7% of Male School leaders. 
 
 The following results also support the point that female school leaders may be more inclined to think certain professions are for boys rather than being suited to both genders.Only 60.7% of female school leaders perceive that both girls and boys are suited to be doctors compared to 71.5% of male school leaders.
 
 
-## What is the effect of school leaders being trained on gender within the last year?.
+#### What is the effect of school leaders being trained on gender within the last year?.
 
-The profession Airhostess would be referred to as Flight attendant from now on to be more inclusive right from the name.
 
-Focusing on the professions Flight Attendant and Pilot
+Focusing on the professions Air hostess and Pilot
 
 ```{r air_professions}
-#Separating data set for the school leader is a man whole receive gender training and the assessed professions are Air Hostess and Pilot
+#Separating data set for the school leader is a man whole receive gender
+#training and the assessed professions are Air Hostess and Pilot
 
 air_df_male_school_leader <- professions_df |>  
   dplyr::filter(Professions %in% c("[Airhostess]", "[Pilot]")) |> 
-  dplyr::filter(`Have you received any training related to gender within the last 1 year?` == "Yes") |> 
+  dplyr::filter(
+    `Have you received any training related to gender within the last 1 year?` 
+    == "Yes") |> 
   dplyr::mutate(dplyr::across(c(1:3), as.factor)) |> 
   dplyr::filter(`What is your gender?` == "Man") |> 
-  dplyr::count(`What is your gender?`,`Have you received any training related to gender within the last 1 year?`,Professions, Suitable_Gender, name = "Count") |> 
+  dplyr::count(`What is your gender?`,
+`Have you received any training related to gender within the last 1 year?`,Professions, 
+Suitable_Gender, name = "Count") |> 
   dplyr::arrange(Professions) |> 
-  dplyr::mutate(Within_Group_percentage = round((Count/ 302)*100, 1)) # There are 302 males school leaders
+  dplyr::mutate(Within_Group_percentage = round((Count/ 118)*100, 1)) 
 
 
-#Separating data set for the school leader is a woman and the assessed professions are Air Hostess and Pilot
+
+#Separating data set for the school leader is a woman and the assessed 
+# professions are Air Hostess and Pilot
 air_df_female_school_leader <- professions_df |>  
   dplyr::filter(Professions %in% c("[Airhostess]", "[Pilot]")) |>
-  dplyr::filter(`Have you received any training related to gender within the last 1 year?` == "Yes") |>
+  dplyr::filter(
+    `Have you received any training related to gender within the last 1 year?` 
+    == "Yes") |>
   dplyr::mutate(dplyr::across(c(1:3), as.factor)) |> 
   dplyr::filter(`What is your gender?` == "Woman")|>  
-  dplyr::count(`What is your gender?`,`Have you received any training related to gender within the last 1 year?`,Professions, Suitable_Gender, name = "Count") |> 
+  dplyr::count(`What is your gender?`,
+`Have you received any training related to gender within the last 1 year?`,
+Professions, Suitable_Gender, name = "Count") |> 
   dplyr::arrange(Professions) |> 
-  dplyr::mutate(Within_Group_percentage = round((Count/ 183)*100, 1)) # There are 183 female school leaders
+  dplyr::mutate(Within_Group_percentage = round((Count/70)*100, 1)) 
 
 
-air_professions_df <- rbind(air_df_female_school_leader, air_df_male_school_leader)
+
+air_professions_df <- rbind(air_df_female_school_leader,
+                            air_df_male_school_leader)
 
 
 # Bar graph
-ggplot2::ggplot(air_professions_df, aes(fill =  `What is your gender?`,  x = Suitable_Gender, y= Count ))+
+ggplot2::ggplot(air_professions_df, aes(fill =  `What is your gender?`,  
+x = Suitable_Gender, y= Within_Group_percentage ))+
+  
     geom_bar(position="dodge", stat="identity")+
 scale_fill_manual(values = c( "#66aa00", "#808"))+
   theme_minimal()+
     theme(axis.text.x = element_text(angle = 45, hjust = 1))+
- labs(title="Opinions of Male School leaders",  subtitle = "Figure 1. On suitable professions for Boys versus Girls")+
-  facet_wrap(~Professions)
+ labs(title="After Gender Training",  
+subtitle = "Figure 3. More males school leaders say professions are suited to both genders")+
+  facet_wrap(~Professions)+
+  geom_hline(yintercept=50, color="orange", linewidth=1)
 ```
 
 
-are school leaders who have received gender training in the last year more likely to say 
+The orange line shows the 50% mark. The results show that after gender training, about 60% of the male school leaders compared to 40% of female school leaders say both genders are suited to being Pilots. For the profession gender, even after being trained on gender, less than 50% of the school leaders both men and women said that both genders of students are suited to be Air hostesses.
+
+Further research is needed to indicate if having the female sounding name "Air Hostess" instead of the gender neutral "Flight attendant"  played a role in the choice the school leaders made.
+
+Also, more research is needed to determine if increasing the frequency of the gender training to 3 times a year would increase the adoption of the message that careers should gender neutral.

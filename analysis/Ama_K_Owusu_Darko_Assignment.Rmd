@@ -189,7 +189,7 @@ subtitle = "Figure 3. More males school leaders say professions are suited to bo
 ```
 
 
-The orange line shows the 50% mark. The results show that after gender training, about 60% of the male school leaders compared to 40% of female school leaders say both genders are suited to being Pilots. For the profession gender, even after being trained on gender, less than 50% of the school leaders both men and women said that both genders of students are suited to be Air hostesses.
+The orange line shows the 50% mark. The results show that after gender training, about 60% of the male school leaders compared to 40% of female school leaders say both genders are suited to being Pilots. For the profession Air hostess, even after being trained on gender, less than 50% of the school leaders both men and women said that both genders of students are suited to be Air hostesses.
 
 Further research is needed to indicate if having the female sounding name "Air Hostess" instead of the gender neutral "Flight attendant"  played a role in the choice the school leaders made.
 
